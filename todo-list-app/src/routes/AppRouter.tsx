@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate} from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import LoginPage from '../pages/LoginPage';
 import DashboardPage from '../pages/DashboardPage';
@@ -9,17 +9,19 @@ import CallenderPage from '../pages/CallenderPage';
 // 보호된 라우트 컴포넌트
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const { user } = useAuth();
-
+    console.log('AppRouter.tsx: ProtectedRoute - 사용자 상태:', user);
     if (!user) {
-    return <Navigate to="/login" replace />;
+        console.log('AppRouter.tsx: 사용자 미인증, 로그인 페이지로 리다이렉트');
+        return <Navigate to="/login" replace />;
     }
-
+    console.log('AppRouter.tsx: 사용자 인증, 보호된 페이지로 이동');
     return <>{children}</>;
 };
 
 const AppRouter = () => {
+    console.log('AppRouter.tsx: 라우터 렌더링');
     return (
-    <BrowserRouter>
+    <Routes>
         {/* 공개 라우트 */}
         <Route path="/login" element={<LoginPage />} />
         
@@ -52,7 +54,7 @@ const AppRouter = () => {
         
         {/* 404 페이지 */}
         <Route path="*" element={<Navigate to="/" replace />} />
-    </BrowserRouter>
+    </Routes>
     );
 };
 

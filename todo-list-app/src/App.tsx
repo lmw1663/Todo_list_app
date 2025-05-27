@@ -76,9 +76,13 @@ import AppRouter from "./routes/AppRouter";
 import { useAuth } from "./hooks/useAuth";
 
 function App() {
+  console.log('App.tsx: App 컴포넌트 렌더링');
   const { user, loading } = useAuth();
-
-  if (loading) return <div>로딩 중...</div>;
+  console.log('App.tsx: 인증 상태', { user, loading });
+  if (loading){
+    console.log('App.tsx: 로딩 중...');
+    return <div>로딩 중...</div>;
+  }
 
   return (
     <div className="app">

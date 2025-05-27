@@ -5,19 +5,19 @@ export interface Todo {
     createdAt: Date;
 }
 
-    export interface User {
+export interface User {
     id: string;
     email: string;
     displayName: string;
 }
 
-    export interface Memo {
+export interface Memo {
     id: string;
     content: string;
     createdAt: Date;
 }
 
-    export interface Goal {
+export interface Goal {
     id: string;
     title: string;
     targetDate: Date;
