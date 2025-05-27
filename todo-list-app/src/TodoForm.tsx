@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { db } from "./firebase";
+import { db } from "./services/firebase";
 import {collection, addDoc, serverTimestamp} from "firebase/firestore";
-import {auth} from "./firebase";
+import {auth} from "./services/firebase";
 
 export default function TodoForm({onTodoAdded}: {onTodoAdded: () => void}){
     const [title, setTitle] = useState("");
