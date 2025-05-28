@@ -1,26 +1,26 @@
 import { useState, useEffect } from 'react';
 import { auth } from '../services/firebase';
-import { User } from '../types/models';
+import type { User } from '../types/models';
 
 export const useAuth = () => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-        if (user) {
-        setUser({
-            id: user.uid,
-            email: user.email || '',
-            displayName: user.displayName || '',
+        const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+            if (firebaseUser) {
+                setUser({
+                    id: firebaseUser.uid,
+                    email: firebaseUser.email || '',
+                    displayName: firebaseUser.displayName || '',
+                });
+            } else {
+                setUser(null);
+            }
+            setLoading(false);
         });
-        } else {
-        setUser(null);
-        }
-        setLoading(false);
-    });
 
-    return () => unsubscribe();
+        return () => unsubscribe();
     }, []);
 
     return { user, loading };
