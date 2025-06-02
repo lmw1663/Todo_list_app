@@ -16,4 +16,22 @@ export default defineConfig({
       },
     },
   ],
+  server: {
+    hmr: {
+      overlay: false // 에러 오버레이 비활성화로 성능 향상
+    }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          firebase: ['firebase']
+        }
+      }
+    }
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', 'firebase']
+  }
 })
