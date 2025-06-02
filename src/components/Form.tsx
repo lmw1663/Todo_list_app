@@ -8,7 +8,7 @@ import type { Todo, Goal, Memo, Counter } from '../types/models';
 import '../styles/Form.css';
 
 interface FormProps {
-  type: 'todo' | 'goal' | 'memo' | 'exercise';
+  type: 'todo' | 'goal' | 'memo' | 'counter';
   onClose: () => void;
   onSuccess?: () => void;
 }
@@ -25,7 +25,7 @@ const Form: React.FC<FormProps> = ({ type, onClose, onSuccess }) => {
   const [memoTitle, setMemoTitle] = useState('');
   const [memoContent, setMemoContent] = useState('');
   
-  const [exerciseTitle, setExerciseTitle] = useState('');
+  const [counterTitle, setCounterTitle] = useState('');
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -41,7 +41,7 @@ const Form: React.FC<FormProps> = ({ type, onClose, onSuccess }) => {
     setGoalDueDate('');
     setMemoTitle('');
     setMemoContent('');
-    setExerciseTitle('');
+    setCounterTitle('');
     setError('');
   };
 
@@ -77,9 +77,9 @@ const Form: React.FC<FormProps> = ({ type, onClose, onSuccess }) => {
           return false;
         }
         break;
-      case 'exercise':
-        if (!exerciseTitle.trim()) {
-          setError('운동 종목을 입력해주세요.');
+      case 'counter':
+        if (!counterTitle.trim()) {
+          setError('카운터 이름을 입력해주세요.');
           return false;
         }
         break;
@@ -155,9 +155,9 @@ const Form: React.FC<FormProps> = ({ type, onClose, onSuccess }) => {
           });
           break;
           
-        case 'exercise':
+        case 'counter':
           const counter: Partial<Counter> = {
-            sort: exerciseTitle,
+            sort: counterTitle,
             count: 0,
             createdAt: new Date()
           };
@@ -185,7 +185,7 @@ const Form: React.FC<FormProps> = ({ type, onClose, onSuccess }) => {
       case 'todo': return '할 일 추가';
       case 'goal': return '목표 추가';
       case 'memo': return '메모 추가';
-      case 'exercise': return '운동 추가';
+      case 'counter': return '카운터 추가';
     }
   };
 
@@ -329,40 +329,18 @@ const Form: React.FC<FormProps> = ({ type, onClose, onSuccess }) => {
             </>
           )}
 
-          {type === 'exercise' && (
+          {type === 'counter' && (
             <>
               <div className="form-field">
                 <label className="form-label">
-                  운동 종목
-                </label>
-                <select
-                  value={exerciseTitle}
-                  onChange={(e) => setExerciseTitle(e.target.value)}
-                  className="form-select"
-                >
-                  <option value="">운동 종목을 선택하세요</option>
-                  <option value="pushup">푸시업</option>
-                  <option value="squat">스쿼트</option>
-                  <option value="pullup">풀업</option>
-                  <option value="plank">플랭크</option>
-                  <option value="burpee">버피</option>
-                  <option value="jumping_jack">점핑잭</option>
-                  <option value="mountain_climber">마운틴 클라이머</option>
-                  <option value="lunge">런지</option>
-                </select>
-              </div>
-
-              <div className="form-field">
-                <label className="form-label">
-                  목표 횟수 (선택사항)
+                  카운터 이름
                 </label>
                 <input
-                  type="number"
-                  value={exerciseTitle ? '10' : ''}
-                  onChange={(e) => {/* 나중에 목표 횟수 기능 추가 */}}
+                  type="text"
+                  value={counterTitle}
+                  onChange={(e) => setCounterTitle(e.target.value)}
                   className="form-input"
-                  placeholder="하루 목표 횟수"
-                  min="1"
+                  placeholder="카운터 이름을 입력하세요"
                 />
               </div>
             </>

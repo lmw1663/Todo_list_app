@@ -7,16 +7,18 @@ import {
   CalendarIcon,
   PencilSquareIcon,
   HeartIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  TrashIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
-import { collection, doc, setDoc, updateDoc, getDocs, query, where, Timestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, updateDoc, getDocs, query, where, Timestamp, deleteDoc } from 'firebase/firestore';
 import { db, auth } from '../services/firebase';
 import { startSleep, endSleep, getCurrentSleepStatus } from '../services/sleepCycleService';
 import type { SleepLog, Counter } from '../types/models';
 import '../styles/BottomBar.css';
 
 interface DashboardBottomBarProps {
-  onOpenForm: (type: 'todo' | 'goal' | 'memo' | 'exercise') => void;
+  onOpenForm: (type: 'todo' | 'goal' | 'memo' | 'counter') => void;
 }
 
 const DashboardBottomBar: React.FC<DashboardBottomBarProps> = ({ onOpenForm }) => {
@@ -54,7 +56,7 @@ const DashboardBottomBar: React.FC<DashboardBottomBarProps> = ({ onOpenForm }) =
     };
 
     loadData();
-  }, []); // 의존성 배열을 빈 배열로 변경하여 초기 로드만 수행
+  }, []);
 
   const handleSleepToggle = async () => {
     try {
@@ -93,7 +95,7 @@ const DashboardBottomBar: React.FC<DashboardBottomBarProps> = ({ onOpenForm }) =
           } catch (error) {
             console.error('카운터 재로드 오류:', error);
           }
-        }, 500); // 500ms 후 재로드
+        }, 500);
         
         alert(`수면 종료! ${Math.floor(result.duration / 60)}시간 ${result.duration % 60}분 잤습니다. 카운터가 저장되고 초기화되었습니다.`);
       } else {
@@ -138,7 +140,41 @@ const DashboardBottomBar: React.FC<DashboardBottomBarProps> = ({ onOpenForm }) =
     }
   };
 
-  const handleAddButtonClick = (type: 'todo' | 'goal' | 'memo' | 'exercise') => {
+  const deleteCounter = async () => {
+    if (!selectedCounter || counters.length <= 1) {
+      alert('최소 하나의 카운터는 유지되어야 합니다.');
+      return;
+    }
+
+    if (!confirm(`"${selectedCounter.sort}" 카운터를 삭제하시겠습니까?`)) {
+      return;
+    }
+
+    try {
+      const userId = auth.currentUser?.uid;
+      if (!userId) return;
+
+      await deleteDoc(doc(db, 'users', userId, 'counters', selectedCounter.id));
+
+      // UI에서 카운터 제거
+      const updatedCounters = counters.filter(c => c.id !== selectedCounter.id);
+      setCounters(updatedCounters);
+      
+      // 새로운 카운터 선택
+      if (updatedCounters.length > 0) {
+        setSelectedCounter(updatedCounters[0]);
+      } else {
+        setSelectedCounter(null);
+      }
+      
+      alert('카운터가 삭제되었습니다.');
+    } catch (error) {
+      console.error('카운터 삭제 오류:', error);
+      alert('카운터 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleAddButtonClick = (type: 'todo' | 'goal' | 'memo' | 'counter') => {
     setIsMenuOpen(false);
     onOpenForm(type);
   };
@@ -171,10 +207,10 @@ const DashboardBottomBar: React.FC<DashboardBottomBarProps> = ({ onOpenForm }) =
             </button>
             
             <button
-              onClick={() => handleAddButtonClick('exercise')}
-              className="add-button exercise"
+              onClick={() => handleAddButtonClick('counter')}
+              className="add-button counter"
             >
-              <HeartIcon className="add-button-icon" />
+              <PlusCircleIcon className="add-button-icon" />
             </button>
           </div>
         </div>
@@ -209,29 +245,45 @@ const DashboardBottomBar: React.FC<DashboardBottomBarProps> = ({ onOpenForm }) =
             <PlusIcon className="main-add-icon" />
           </button>
 
-          {/* 카운터 버튼 */}
+          {/* 카운터 섹션 */}
           {selectedCounter && (
             <div className="counter-section">
-              <select
-                value={selectedCounter.id}
-                onChange={(e) => {
-                  const counter = counters.find(c => c.id === e.target.value);
-                  if (counter) setSelectedCounter(counter);
-                }}
-                className="counter-select"
-              >
-                {counters.map(counter => (
-                  <option key={counter.id} value={counter.id}>
-                    {counter.sort}
-                  </option>
-                ))}
-              </select>
+              <div className="counter-display-card">
+                <div className="counter-header">
+                  <select
+                    value={selectedCounter.id}
+                    onChange={(e) => {
+                      const counter = counters.find(c => c.id === e.target.value);
+                      if (counter) setSelectedCounter(counter);
+                    }}
+                    className="counter-select-modern"
+                  >
+                    {counters.map(counter => (
+                      <option key={counter.id} value={counter.id}>
+                        {counter.sort}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={deleteCounter}
+                    className="counter-delete-btn"
+                    title="카운터 삭제"
+                    disabled={counters.length <= 1}
+                  >
+                    <TrashIcon className="delete-icon" />
+                  </button>
+                </div>
+                <div className="counter-value-display">
+                  <span className="counter-number">{selectedCounter.count}</span>
+                  <span className="counter-label">횟수</span>
+                </div>
+              </div>
               <button
                 onClick={incrementCounter}
-                className="counter-button"
+                className="counter-increment-btn"
+                title="카운터 증가"
               >
-                <PlusCircleIcon className="counter-icon" />
-                <span>{selectedCounter.count}</span>
+                <PlusCircleIcon className="increment-icon" />
               </button>
             </div>
           )}

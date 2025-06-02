@@ -7,6 +7,19 @@
   overflow: hidden;
 }
 
+/* Loading Styles */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.loading-text {
+  color: #64748b;
+  font-size: 1rem;
+}
+
 .dashboard-header {
   background: rgba(15, 15, 35, 0.8);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -18,6 +31,12 @@
   max-width: 80rem;
   margin: 0 auto;
   padding: 0.75rem 1rem;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .dashboard-title {
@@ -147,6 +166,8 @@
   padding: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(139, 92, 246, 0.3);
+  position: relative;
+  overflow: visible;
 }
 
 .memory-header {
@@ -178,6 +199,7 @@
   background-color: rgba(15, 15, 35, 0.8);
   border-radius: 0.5rem;
   overflow: visible;
+  margin-bottom: 0.5rem;
 }
 
 .memory-progress {
@@ -674,4 +696,104 @@
   font-size: 1rem;
   color: #94a3b8;
   line-height: 1;
+}
+
+/* Enhanced Memory Process Tooltip - 더 개선됨 */
+.enhanced-tooltip {
+    position: fixed;
+    bottom: auto;
+    top: auto;
+    left: auto;
+    right: auto;
+    transform: none;
+    background: rgba(15, 15, 35, 0.98);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    width: 250px;
+    backdrop-filter: blur(16px);
+    pointer-events: none;
+}
+
+.memory-process:hover .enhanced-tooltip {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.memory-process {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.memory-process:hover {
+    transform: scale(1.02);
+    z-index: 10;
+}
+
+/* 툴팁 위치를 JavaScript로 동적 계산하도록 변경 */
+.tooltip-positioned {
+    position: fixed;
+}
+
+/* 플로팅 액션 버튼들 */
+.floating-action-buttons {
+    position: fixed;
+    bottom: 10rem;
+    left: 2rem;
+    right: 2rem;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 40;
+}
+
+.floating-btn {
+    pointer-events: auto;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    border: none;
+    border-radius: 50%;
+    width: 3.5rem;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    backdrop-filter: blur(10px);
+}
+
+.floating-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.6);
+}
+
+.floating-btn.goals-btn {
+    background: linear-gradient(135deg, #10b981, #047857);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.floating-btn.goals-btn:hover {
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+}
+
+.floating-btn.memos-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
+.floating-btn.memos-btn:hover {
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.6);
+}
+
+.floating-btn-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: white;
 } 

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import DashboardBottomBar from '../components/DashboardBottomBar';
+import FloatingGoalsPanel from '../components/FloatingGoalsPanel';
+import FloatingMemosPanel from '../components/FloatingMemosPanel';
 import Form from '../components/Form';
 import { collection, getDocs, onSnapshot, query, where, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
-import { initializeMemorySpaces, updateAllProcesses, removeProcessByTodoId, getProcesses, calculateProcessSize } from '../services/memoryService';
+import { initializeMemorySpaces, updateAllProcesses, removeProcessByTodoId, getProcesses, calculateProcessSize, updateMemorySpaceCapacity } from '../services/memoryService';
 import type { Todo, Goal, Memo, MemorySpace, Process } from '../types/models';
 import { 
   ClipboardDocumentListIcon, 
@@ -14,19 +16,24 @@ import {
   CalendarIcon,
   UserCircleIcon,
   CheckCircleIcon,
-  ClockIcon
+  ClockIcon,
+  ArrowRightIcon
 } from '@heroicons/react/24/outline';
 import '../styles/Dashboard.css';
 
 export default function DashboardPage() {
     const { user } = useAuth();
-    const [formType, setFormType] = useState<'todo' | 'goal' | 'memo' | 'exercise' | null>(null);
+    const [formType, setFormType] = useState<'todo' | 'goal' | 'memo' | 'counter' | null>(null);
     const [todos, setTodos] = useState<Todo[]>([]);
     const [goals, setGoals] = useState<Goal[]>([]);
+    const [allGoals, setAllGoals] = useState<Goal[]>([]);
     const [memos, setMemos] = useState<Memo[]>([]);
+    const [allMemos, setAllMemos] = useState<Memo[]>([]);
     const [memorySpaces, setMemorySpaces] = useState<MemorySpace[]>([]);
     const [processes, setProcesses] = useState<Process[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showGoalsPanel, setShowGoalsPanel] = useState(false);
+    const [showMemosPanel, setShowMemosPanel] = useState(false);
 
     // 메모리 공간 초기화
     useEffect(() => {
@@ -97,7 +104,19 @@ export default function DashboardPage() {
             }
         );
 
-        // Goals 구독
+        // 모든 Goals 구독 (완료된 것 포함)
+        const allGoalsUnsubscribe = onSnapshot(
+            collection(db, 'users', user.id, 'goals'),
+            (snapshot) => {
+                const allGoalsData = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                } as Goal));
+                setAllGoals(allGoalsData);
+            }
+        );
+
+        // 미완료 Goals 구독 (대시보드용)
         const goalsUnsubscribe = onSnapshot(
             query(collection(db, 'users', user.id, 'goals'), where('isAchieved', '==', false)),
             (snapshot) => {
@@ -109,7 +128,19 @@ export default function DashboardPage() {
             }
         );
 
-        // Memos 구독
+        // 모든 Memos 구독
+        const allMemosUnsubscribe = onSnapshot(
+            collection(db, 'users', user.id, 'memos'),
+            (snapshot) => {
+                const allMemosData = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                } as Memo));
+                setAllMemos(allMemosData);
+            }
+        );
+
+        // Memos 구독 (대시보드용)
         const memosUnsubscribe = onSnapshot(
             collection(db, 'users', user.id, 'memos'),
             (snapshot) => {
@@ -159,13 +190,15 @@ export default function DashboardPage() {
         return () => {
             todosUnsubscribe();
             goalsUnsubscribe();
+            allGoalsUnsubscribe();
             memosUnsubscribe();
+            allMemosUnsubscribe();
             memoryUnsubscribe();
             processesUnsubscribe();
         };
     }, [user]);
 
-    const handleOpenForm = (type: 'todo' | 'goal' | 'memo' | 'exercise') => {
+    const handleOpenForm = (type: 'todo' | 'goal' | 'memo' | 'counter') => {
         setFormType(type);
     };
 
@@ -204,26 +237,57 @@ export default function DashboardPage() {
         return colors[index % colors.length];
     };
 
-    // 메모리 공간별 프로세스 렌더링
+    // 툴팁 위치 계산 함수
+    const calculateTooltipPosition = (processElement: HTMLElement) => {
+        const rect = processElement.getBoundingClientRect();
+        const tooltip = processElement.querySelector('.enhanced-tooltip') as HTMLElement;
+        
+        if (tooltip) {
+            const tooltipRect = tooltip.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+            const viewportWidth = window.innerWidth;
+            
+            // 기본 위치 (프로세스 바 위쪽)
+            let top = rect.top - tooltipRect.height - 10;
+            let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+            
+            // 상단 경계 체크
+            if (top < 10) {
+                top = rect.bottom + 10; // 아래쪽으로 이동
+            }
+            
+            // 좌우 경계 체크
+            if (left < 10) {
+                left = 10;
+            } else if (left + tooltipRect.width > viewportWidth - 10) {
+                left = viewportWidth - tooltipRect.width - 10;
+            }
+            
+            tooltip.style.top = `${top}px`;
+            tooltip.style.left = `${left}px`;
+            tooltip.classList.add('tooltip-positioned');
+        }
+    };
+
+    // 메모리 공간별 프로세스 렌더링 (개선된 툴팁 위치 계산 포함)
     const renderMemoryProcesses = (memorySpace: MemorySpace) => {
         const spaceProcesses = processes.filter(p => p.memorySpaceId === memorySpace.id);
         let currentPosition = 0;
 
         return spaceProcesses.map((process, index) => {
-            const processSize = Math.max(calculateProcessSize(process), 1); // 동적 크기 계산
+            const processSize = Math.max(calculateProcessSize(process), 1);
             const processWidth = Math.min((processSize / memorySpace.memory.totalCapacity) * 100, 100 - currentPosition);
             const relatedTodo = todos.find(t => t.id === process.todoId);
             
-            // 연속된 막대그래프를 위한 border-radius 설정
             const isFirst = index === 0;
             const isLast = index === spaceProcesses.length - 1;
             const borderRadius = isFirst && isLast 
-                ? '0.5rem' // 혼자 있을 때
+                ? '0.5rem'
                 : isFirst 
-                ? '0.5rem 0 0 0.5rem' // 첫 번째
+                ? '0.5rem 0 0 0.5rem'
                 : isLast 
-                ? '0 0.5rem 0.5rem 0' // 마지막
-                : '0'; // 중간
+                ? '0 0.5rem 0.5rem 0'
+                : '0';
             
             const processElement = (
                 <div
@@ -235,11 +299,43 @@ export default function DashboardPage() {
                         background: getProcessColor(index),
                         borderRadius: borderRadius
                     }}
+                    onMouseEnter={(e) => {
+                        setTimeout(() => calculateTooltipPosition(e.currentTarget), 50);
+                    }}
                 >
-                    <div className="process-tooltip">
-                        {relatedTodo ? relatedTodo.text : `프로세스 ${process.id}`}
-                        <br />
-                        <small>{Math.round(processSize)}MB 사용 중</small>
+                    <div className="process-tooltip enhanced-tooltip">
+                        <div className="tooltip-content">
+                            <div className="tooltip-header">
+                                <h4>{relatedTodo ? relatedTodo.text : `프로세스 ${process.id}`}</h4>
+                                <span className="size-badge">{Math.round(processSize)}MB</span>
+                            </div>
+                            {relatedTodo && relatedTodo.status !== 'done' && (
+                                <div className="tooltip-actions">
+                                    {memorySpace.name !== 'hwvm' && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleMoveToHwvm(process.id);
+                                            }}
+                                            className="tooltip-btn hwvm-btn"
+                                        >
+                                            <ArrowRightIcon className="btn-icon" />
+                                            HWVM으로 이동
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleTodoComplete(relatedTodo.id);
+                                        }}
+                                        className="tooltip-btn complete-btn"
+                                    >
+                                        <CheckCircleIcon className="btn-icon" />
+                                        완료
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             );
@@ -249,15 +345,37 @@ export default function DashboardPage() {
         });
     };
 
-    // Todo 관리
+    // Todo hwvm 이동 처리 (메모리 스페이스 업데이트 포함)
     const handleMoveToHwvm = async (processId: string) => {
         if (!user?.id) return;
 
         try {
+            // 현재 프로세스 정보 가져오기
+            const currentProcess = processes.find(p => p.id === processId);
+            if (!currentProcess) {
+                console.error('프로세스를 찾을 수 없습니다.');
+                return;
+            }
+
+            // hwvm 메모리 스페이스 찾기
+            const hwvmSpace = memorySpaces.find(space => space.name === 'hwvm');
+            if (!hwvmSpace) {
+                console.error('HWVM 메모리 스페이스를 찾을 수 없습니다.');
+                return;
+            }
+
+            // 이전 메모리 스페이스 ID 저장
+            const previousSpaceId = currentProcess.memorySpaceId;
+
             // 프로세스를 hwvm으로 이동
             await updateDoc(doc(db, 'users', user.id, 'processes', processId), {
-                memorySpaceId: 'hwvm'
+                memorySpaceId: hwvmSpace.id,
+                lastUpdated: new Date()
             });
+            
+            // 이전 메모리 공간과 새로운 메모리 공간 모두 업데이트
+            await updateMemorySpaceCapacity(user.id, previousSpaceId);
+            await updateMemorySpaceCapacity(user.id, hwvmSpace.id);
             
             console.log('프로세스가 hwvm으로 이동되었습니다.');
         } catch (error) {
@@ -267,8 +385,8 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <div className="text-gray-500">로딩 중...</div>
+            <div className="loading-container">
+                <div className="loading-text">로딩 중...</div>
             </div>
         );
     }
@@ -278,7 +396,7 @@ export default function DashboardPage() {
             {/* 헤더 */}
             <div className="dashboard-header">
                 <div className="dashboard-header-content">
-                    <div className="flex items-center justify-between">
+                    <div className="header-row">
                         <div>
                             <h1 className="dashboard-title">대시보드</h1>
                             {user && (
@@ -295,7 +413,7 @@ export default function DashboardPage() {
             {/* 메인 컨텐츠 */}
             <div className="dashboard-main">
                 {/* 메모리 상태 */}
-                <div className="card">
+                <div className="card memory-card">
                     <h2 className="card-header">
                         <div className="icon-container blue">
                             <BoltIcon className="icon blue" />
@@ -325,195 +443,24 @@ export default function DashboardPage() {
                         ))}
                     </div>
                 </div>
+            </div>
 
-                {/* Todo 관리 */}
-                <div className="card">
-                    <h2 className="card-header">
-                        <div className="icon-container green">
-                            <CheckCircleIcon className="icon green" />
-                        </div>
-                        할 일 관리
-                    </h2>
-                    
-                    {/* Todo 완료율 그래프 */}
-                    <div className="todo-progress-chart">
-                        <div className="chart-header">
-                            <span>완료율</span>
-                            <span className="completion-rate">
-                                {todos.length > 0 ? Math.round((todos.filter(t => t.status === 'done').length / todos.length) * 100) : 0}%
-                            </span>
-                        </div>
-                        <div className="progress-ring">
-                            <svg width="120" height="120">
-                                <circle
-                                    cx="60"
-                                    cy="60"
-                                    r="50"
-                                    stroke="#e5e7eb"
-                                    strokeWidth="8"
-                                    fill="transparent"
-                                />
-                                <circle
-                                    cx="60"
-                                    cy="60"
-                                    r="50"
-                                    stroke="url(#progressGradient)"
-                                    strokeWidth="8"
-                                    strokeLinecap="round"
-                                    fill="transparent"
-                                    strokeDasharray={`${2 * Math.PI * 50}`}
-                                    strokeDashoffset={`${2 * Math.PI * 50 * (1 - (todos.length > 0 ? todos.filter(t => t.status === 'done').length / todos.length : 0))}`}
-                                    style={{ transform: 'rotate(-90deg)', transformOrigin: '60px 60px' }}
-                                />
-                                <defs>
-                                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" stopColor="#10b981" />
-                                        <stop offset="100%" stopColor="#059669" />
-                                    </linearGradient>
-                                </defs>
-                            </svg>
-                            <div className="ring-text">
-                                <div className="completed-count">{todos.filter(t => t.status === 'done').length}</div>
-                                <div className="total-count">/ {todos.length}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {todos.length > 0 ? (
-                        <div className="todo-management">
-                            {todos.slice(0, 5).map((todo) => {
-                                const relatedProcess = processes.find(p => p.todoId === todo.id);
-                                const currentSpace = relatedProcess?.memorySpaceId || 'memory';
-                                
-                                return (
-                                    <div key={todo.id} className="todo-item-dashboard">
-                                        <div className="todo-content">
-                                            <div className="todo-status-badge">
-                                                {todo.status === 'done' ? (
-                                                    <CheckCircleIcon className="status-icon completed" />
-                                                ) : (
-                                                    <ClockIcon className="status-icon active" />
-                                                )}
-                                            </div>
-                                            <div className="todo-text-container">
-                                                <h3 className="todo-text">{todo.text}</h3>
-                                                <div className="todo-meta">
-                                                    <span className="memory-badge">{currentSpace}</span>
-                                                    {relatedProcess && (
-                                                        <span className="size-badge">
-                                                            {Math.round(calculateProcessSize(relatedProcess))}MB
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        {todo.status !== 'done' && relatedProcess && (
-                                            <div className="todo-actions">
-                                                <button
-                                                    onClick={() => handleMoveToHwvm(relatedProcess.id)}
-                                                    className={`move-btn ${currentSpace === 'hwvm' ? 'to-memory' : 'to-hwvm'}`}
-                                                    disabled={currentSpace === 'hwvm'}
-                                                >
-                                                    {currentSpace === 'hwvm' ? 'HWVM에 있음' : 'HWVM으로 이동'}
-                                                </button>
-                                                <button
-                                                    onClick={() => handleTodoComplete(todo.id)}
-                                                    className="complete-btn"
-                                                >
-                                                    완료
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                            {todos.length > 5 && (
-                                <div className="item-more">
-                                    +{todos.length - 5}개 더
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="empty-state">
-                            <div className="empty-icon-container green">
-                                <CheckCircleIcon className="empty-icon green" />
-                            </div>
-                            <p className="empty-text">할 일이 없습니다.</p>
-                        </div>
-                    )}
-                </div>
-
-                <div className="content-grid">
-                    {/* 목표 */}
-                    <div className="card">
-                        <h2 className="card-header">
-                            <div className="icon-container red">
-                                <FlagIcon className="icon red" />
-                            </div>
-                            목표
-                        </h2>
-                        {goals.length > 0 ? (
-                            <div className="item-list">
-                                {goals.slice(0, 2).map((goal) => (
-                                    <div key={goal.id} className="item">
-                                        <h3 className="item-title">{goal.title}</h3>
-                                        <p className="item-content">
-                                            <CalendarIcon className="small-icon" />
-                                            {new Date(goal.dueDate).toLocaleDateString()}
-                                        </p>
-                                    </div>
-                                ))}
-                                {goals.length > 2 && (
-                                    <div className="item-more">
-                                        +{goals.length - 2}개 더
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="empty-state">
-                                <div className="empty-icon-container red">
-                                    <FlagIcon className="empty-icon red" />
-                                </div>
-                                <p className="empty-text">목표가 없습니다.</p>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* 메모 */}
-                    <div className="card">
-                        <h2 className="card-header">
-                            <div className="icon-container yellow">
-                                <DocumentTextIcon className="icon yellow" />
-                            </div>
-                            최근 메모
-                        </h2>
-                        {memos.length > 0 ? (
-                            <div className="item-list">
-                                {memos.slice(0, 2).map((memo) => (
-                                    <div key={memo.id} className="item memo">
-                                        <h3 className="item-title">{memo.text}</h3>
-                                        {memo.content && (
-                                            <p className="item-content">{memo.content}</p>
-                                        )}
-                                    </div>
-                                ))}
-                                {memos.length > 2 && (
-                                    <div className="item-more">
-                                        +{memos.length - 2}개 더
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="empty-state">
-                                <div className="empty-icon-container yellow">
-                                    <DocumentTextIcon className="empty-icon yellow" />
-                                </div>
-                                <p className="empty-text">메모가 없습니다.</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
+            {/* 플로팅 액션 버튼들 */}
+            <div className="floating-action-buttons">
+                <button
+                    onClick={() => setShowGoalsPanel(true)}
+                    className="floating-btn goals-btn"
+                    title="목표"
+                >
+                    <FlagIcon className="floating-btn-icon" />
+                </button>
+                <button
+                    onClick={() => setShowMemosPanel(true)}
+                    className="floating-btn memos-btn"
+                    title="메모"
+                >
+                    <DocumentTextIcon className="floating-btn-icon" />
+                </button>
             </div>
 
             {/* 하단 바 */}
@@ -529,6 +476,18 @@ export default function DashboardPage() {
                     }}
                 />
             )}
+
+            {/* 플로팅 패널들 */}
+            <FloatingGoalsPanel
+                goals={allGoals}
+                isOpen={showGoalsPanel}
+                onClose={() => setShowGoalsPanel(false)}
+            />
+            <FloatingMemosPanel
+                memos={allMemos}
+                isOpen={showMemosPanel}
+                onClose={() => setShowMemosPanel(false)}
+            />
         </div>
     );
 }
