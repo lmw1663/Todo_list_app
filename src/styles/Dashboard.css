@@ -1,0 +1,677 @@
+/* Dashboard Page Styles - 다크모드 */
+
+.dashboard-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  padding-bottom: 5rem;
+  overflow: hidden;
+}
+
+.dashboard-header {
+  background: rgba(15, 15, 35, 0.8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.dashboard-header-content {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+}
+
+.dashboard-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  background: linear-gradient(to right, #8b5cf6, #a855f7);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.user-icon {
+  width: 1rem;
+  height: 1rem;
+  color: #94a3b8;
+}
+
+.user-text {
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+.dashboard-main {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  height: calc(100vh - 140px);
+  overflow-y: auto;
+}
+
+.card {
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(16px);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+  transform: scale(1);
+  transition: all 0.2s ease;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.card:hover {
+  transform: scale(1.01);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.card-header {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #e2e8f0;
+}
+
+.icon-container {
+  padding: 0.375rem;
+  border-radius: 0.5rem;
+}
+
+.icon-container.blue {
+  background-color: rgba(139, 92, 246, 0.2);
+}
+
+.icon-container.green {
+  background-color: rgba(16, 185, 129, 0.2);
+}
+
+.icon-container.red {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+.icon-container.yellow {
+  background-color: rgba(245, 158, 11, 0.2);
+}
+
+.icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.icon.blue {
+  color: #8b5cf6;
+}
+
+.icon.green {
+  color: #10b981;
+}
+
+.icon.red {
+  color: #ef4444;
+}
+
+.icon.yellow {
+  color: #f59e0b;
+}
+
+/* Memory Section - 다크모드 */
+.memory-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .memory-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.memory-item {
+  background: rgba(15, 15, 35, 0.6);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.memory-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.memory-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.memory-percentage {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.memory-bar {
+  position: relative;
+  width: 100%;
+  height: 1.5rem;
+  background-color: rgba(15, 15, 35, 0.8);
+  border-radius: 0.5rem;
+  overflow: visible;
+}
+
+.memory-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(to right, #8b5cf6, #7c3aed);
+  transition: all 0.5s ease-out;
+}
+
+.memory-process {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  z-index: 5;
+  border: none;
+}
+
+.memory-process:hover {
+  transform: scaleY(1.1);
+  z-index: 15;
+  filter: brightness(1.1);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+}
+
+.process-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 15, 35, 0.95);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 20;
+  margin-bottom: 0.25rem;
+  max-width: 200px;
+  text-align: center;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.process-tooltip::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(15, 15, 35, 0.95);
+}
+
+.memory-process:hover .process-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.memory-text {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #e2e8f0;
+  background-color: rgba(15, 15, 35, 0.9);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  z-index: 10;
+}
+
+.memory-scale {
+  margin-top: 0.25rem;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* Todo Section - 다크모드 */
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 8rem;
+  overflow-y: auto;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  background: rgba(15, 15, 35, 0.6);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.todo-item:hover {
+  box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.3);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.todo-checkbox {
+  width: 1rem;
+  height: 1rem;
+  color: #10b981;
+  border-radius: 0.25rem;
+  border-color: #64748b;
+}
+
+.todo-checkbox:focus {
+  ring: 2px;
+  ring-color: #10b981;
+}
+
+.todo-text {
+  flex: 1;
+  margin-left: 0.5rem;
+  font-size: 0.875rem;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.todo-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  background-color: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+}
+
+.todo-more {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  padding-top: 0.25rem;
+}
+
+/* Grid Layout */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .content-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Goals and Memos - 다크모드 */
+.item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 8rem;
+  overflow-y: auto;
+}
+
+.item {
+  background: rgba(15, 15, 35, 0.6);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.item:hover {
+  box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.3);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.item.memo {
+  border-left: 4px solid #f59e0b;
+}
+
+.item-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-content {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-more {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* Empty State - 다크모드 */
+.empty-state {
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.empty-icon-container {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.5rem;
+}
+
+.empty-icon-container.green {
+  background-color: rgba(16, 185, 129, 0.2);
+}
+
+.empty-icon-container.red {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+.empty-icon-container.yellow {
+  background-color: rgba(245, 158, 11, 0.2);
+}
+
+.empty-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.empty-icon.green {
+  color: #10b981;
+}
+
+.empty-icon.red {
+  color: #ef4444;
+}
+
+.empty-icon.yellow {
+  color: #f59e0b;
+}
+
+.empty-text {
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+.small-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* Todo 관리 스타일 - 다크모드 */
+.todo-management {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.todo-item-dashboard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba(15, 15, 35, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  transition: all 0.3s ease;
+}
+
+.todo-item-dashboard:hover {
+  background: rgba(30, 41, 59, 0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.todo-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.todo-status-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.status-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.status-icon.completed {
+  color: #10b981;
+}
+
+.status-icon.active {
+  color: #8b5cf6;
+}
+
+.todo-text-container {
+  flex: 1;
+}
+
+.todo-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0 0 0.5rem 0;
+}
+
+.todo-meta {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.memory-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.size-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: rgba(30, 41, 59, 0.8);
+  color: #94a3b8;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.todo-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.move-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.move-btn.to-hwvm {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.move-btn.to-hwvm:hover {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  transform: translateY(-1px);
+}
+
+.move-btn.to-memory {
+  background: rgba(30, 41, 59, 0.8);
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.move-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.complete-btn {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #10b981, #047857);
+  color: white;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.complete-btn:hover {
+  background: linear-gradient(135deg, #047857, #065f46);
+  transform: translateY(-1px);
+}
+
+/* 컬러 아이콘 스타일 추가 */
+.icon.green {
+  color: #10b981;
+}
+
+.empty-icon.green {
+  color: #10b981;
+}
+
+.icon-container.green {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+}
+
+/* Todo 완료율 그래프 스타일 - 다크모드 */
+.todo-progress-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(15, 15, 35, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 1.5rem;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.completion-rate {
+  font-size: 1.25rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.progress-ring {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-ring svg {
+  transform: rotate(-90deg);
+  filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.2));
+}
+
+.progress-ring circle {
+  transition: stroke-dashoffset 0.8s ease-in-out;
+}
+
+.ring-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-weight: 700;
+}
+
+.completed-count {
+  font-size: 1.5rem;
+  color: #10b981;
+  line-height: 1;
+}
+
+.total-count {
+  font-size: 1rem;
+  color: #94a3b8;
+  line-height: 1;
+} 

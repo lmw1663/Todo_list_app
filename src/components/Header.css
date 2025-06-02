@@ -1,0 +1,224 @@
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-left {
+    flex: 1;
+}
+
+.header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.header-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* 버튼 기본 스타일 */
+.nav-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #f3f4f6;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    transition: all 0.2s ease;
+}
+
+.nav-button:hover {
+    background-color: #e5e7eb;
+    transform: translateY(-1px);
+}
+
+/* 대시보드 버튼 (메인 버튼) */
+.dashboard-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background-color: #3b82f6;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.dashboard-button:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+}
+
+/* 프로필 영역 */
+.profile-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background-color: #f9fafb;
+}
+
+/* 프로필 사진 */
+.profile-picture {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #3b82f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    transition: all 0.2s ease;
+    border: 2px solid #e5e7eb;
+}
+
+.profile-picture:hover {
+    transform: scale(1.1);
+    border-color: #3b82f6;
+}
+
+/* 아이콘 버튼 */
+.icon-button {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+/* 설정 버튼 */
+.settings-button:hover {
+    background-color: #e5e7eb;
+    transform: rotate(90deg);
+}
+
+/* 로그아웃 버튼 */
+.logout-button:hover {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+/* Record 드롭다운 스타일 */
+.record-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.record-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 1rem;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+    border: 1px solid rgba(229, 231, 235, 0.3);
+    padding: 0.5rem;
+    z-index: 1000;
+    min-width: 280px;
+    margin-top: 0.5rem;
+    animation: dropdownAppear 0.3s ease-out;
+}
+
+@keyframes dropdownAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.record-dropdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    margin-bottom: 0.25rem;
+}
+
+.record-dropdown-item:last-child {
+    margin-bottom: 0;
+}
+
+.record-dropdown-item:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.record-item-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.125rem;
+}
+
+.record-item-description {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 400;
+}
+
+.record-button {
+    position: relative;
+}
+
+.record-button::after {
+    content: '▼';
+    font-size: 0.6rem;
+    margin-left: 0.5rem;
+    color: #9ca3af;
+    transition: transform 0.2s ease;
+}
+
+.record-dropdown-container:hover .record-button::after {
+    transform: rotate(180deg);
+    color: #3b82f6;
+} 

@@ -1,0 +1,5 @@
+.app {
+    width: 100vw;
+    min-height: 100vh;
+    background: #f9fafb; /* 필요시 배경색 */
+}
