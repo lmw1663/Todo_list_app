@@ -1,0 +1,334 @@
+.floating-panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.floating-panel {
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    max-width: 500px;
+    width: 100%;
+    max-height: 80vh;
+    overflow: hidden;
+    animation: panelSlideIn 0.3s ease-out;
+}
+
+@keyframes panelSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.panel-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.panel-title h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #f1f5f9;
+}
+
+.panel-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: #8b5cf6;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+    background: rgba(139, 92, 246, 0.2);
+}
+
+.close-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #64748b;
+}
+
+.panel-content {
+    padding: 1.5rem;
+    max-height: calc(80vh - 5rem);
+    overflow-y: auto;
+}
+
+/* Goals Panel Styles */
+.goals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.goal-item {
+    padding: 1rem;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 0.75rem;
+    background: rgba(15, 15, 35, 0.6);
+    transition: all 0.2s;
+}
+
+.goal-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.goal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.goal-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #f1f5f9;
+}
+
+.goal-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.goal-badge.achieved {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.goal-badge.pending {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.goal-description {
+    margin: 0.5rem 0;
+    color: #64748b;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.goal-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+}
+
+.goal-date {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #64748b;
+    font-size: 0.75rem;
+}
+
+.goal-category {
+    padding: 0.125rem 0.5rem;
+    background: rgba(139, 92, 246, 0.2);
+    color: #c4b5fd;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+}
+
+/* Memos Panel Styles */
+.memos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.memo-item {
+    padding: 1rem;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 0.75rem;
+    background: rgba(15, 15, 35, 0.6);
+    transition: all 0.2s;
+}
+
+.memo-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.memo-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.memo-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    flex: 1;
+}
+
+.memo-date {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #64748b;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.memo-content {
+    margin: 0.5rem 0;
+    color: #64748b;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.memo-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.memo-tag {
+    padding: 0.125rem 0.5rem;
+    background: rgba(139, 92, 246, 0.2);
+    color: #c4b5fd;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.meta-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+}
+
+/* Empty State */
+.empty-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+.empty-icon {
+    width: 3rem;
+    height: 3rem;
+    color: #cbd5e1;
+    margin-bottom: 1rem;
+}
+
+.empty-panel p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+/* Floating Buttons */
+.floating-action-buttons {
+    position: fixed;
+    bottom: 6rem;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.floating-btn {
+    position: absolute;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: auto;
+}
+
+.floating-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.floating-btn.goals-btn {
+    bottom: 0;
+    left: 1.5rem;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.floating-btn.memos-btn {
+    bottom: 0;
+    right: 1.5rem;
+    background: linear-gradient(135deg, #eab308, #ca8a04);
+}
+
+.floating-btn-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: white;
+}
+
+@media (max-width: 640px) {
+    .floating-panel {
+        max-width: 95vw;
+        margin: 0 1rem;
+    }
+    
+    .floating-btn {
+        width: 3rem;
+        height: 3rem;
+    }
+    
+    .floating-btn.goals-btn {
+        left: 1rem;
+    }
+    
+    .floating-btn.memos-btn {
+        right: 1rem;
+    }
+} 
