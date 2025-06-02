@@ -217,10 +217,10 @@ export default function DashboardPage() {
                                             width: `${(space.memory.usedCapacity / space.memory.totalCapacity) * 100}%` 
                                         }}
                                     >
-                                        <span className="memory-text">
-                                            {Math.round(space.memory.usedCapacity)} / {space.memory.totalCapacity}
-                                        </span>
                                     </div>
+                                    <span className="memory-text">
+                                        {Math.round(space.memory.usedCapacity)} / {space.memory.totalCapacity}
+                                    </span>
                                 </div>
                                 <div className="memory-scale">
                                     <span>0</span>

@@ -99,9 +99,15 @@ export const createProcess = async (todoId: string, memorySpaceName: string = 'm
 // 프로세스 크기 계산
 export const calculateProcessSize = (process: Process): number => {
   const now = new Date();
-  const hoursSinceLastUpdate = (now.getTime() - process.lastUpdated.getTime()) / (1000 * 60 * 60);
+  
+  // Firestore Timestamp를 Date로 변환
+  const lastUpdated = process.lastUpdated instanceof Date 
+    ? process.lastUpdated 
+    : (process.lastUpdated as any).toDate();
+    
+  const hoursSinceLastUpdate = (now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60);
   const sizeIncrease = hoursSinceLastUpdate * process.growthRate;
-  return process.size + sizeIncrease;
+  return Math.max(process.size + sizeIncrease, process.size); // 음수 방지
 };
 
 // 프로세스 업데이트
@@ -112,7 +118,19 @@ export const updateProcess = async (processId: string) => {
   const processDoc = await getDoc(doc(db, 'users', userId, 'processes', processId));
   if (!processDoc.exists()) return;
 
-  const process = processDoc.data() as Process;
+  const processData = processDoc.data();
+  
+  // Firestore Timestamp를 Date로 변환
+  const process: Process = {
+    ...processData,
+    createdAt: processData.createdAt instanceof Date 
+      ? processData.createdAt 
+      : processData.createdAt.toDate(),
+    lastUpdated: processData.lastUpdated instanceof Date 
+      ? processData.lastUpdated 
+      : processData.lastUpdated.toDate()
+  } as Process;
+
   const newSize = calculateProcessSize(process);
 
   await updateDoc(doc(db, 'users', userId, 'processes', processId), {
@@ -136,7 +154,19 @@ export const updateMemorySpaceCapacity = async (userId: string, memorySpaceId: s
   let totalSize = 0;
 
   processesSnapshot.forEach((doc) => {
-    const process = doc.data() as Process;
+    const processData = doc.data();
+    
+    // Firestore Timestamp를 Date로 변환
+    const process: Process = {
+      ...processData,
+      createdAt: processData.createdAt instanceof Date 
+        ? processData.createdAt 
+        : processData.createdAt.toDate(),
+      lastUpdated: processData.lastUpdated instanceof Date 
+        ? processData.lastUpdated 
+        : processData.lastUpdated.toDate()
+    } as Process;
+    
     totalSize += calculateProcessSize(process);
   });
 
@@ -144,7 +174,18 @@ export const updateMemorySpaceCapacity = async (userId: string, memorySpaceId: s
   const memorySpaceDoc = await getDoc(doc(db, 'users', userId, 'memorySpaces', memorySpaceId));
   
   if (memorySpaceDoc.exists()) {
-    const memorySpace = memorySpaceDoc.data() as MemorySpace;
+    const memorySpaceData = memorySpaceDoc.data();
+    
+    // Firestore Timestamp를 Date로 변환
+    const memorySpace: MemorySpace = {
+      ...memorySpaceData,
+      memory: {
+        ...memorySpaceData.memory,
+        lastUpdated: memorySpaceData.memory.lastUpdated instanceof Date 
+          ? memorySpaceData.memory.lastUpdated 
+          : memorySpaceData.memory.lastUpdated.toDate()
+      }
+    } as MemorySpace;
 
     await updateDoc(doc(db, 'users', userId, 'memorySpaces', memorySpaceId), {
       'memory.usedCapacity': totalSize,
@@ -168,7 +209,18 @@ export const removeProcessByTodoId = async (todoId: string) => {
   const processesSnapshot = await getDocs(processesQuery);
   
   for (const processDoc of processesSnapshot.docs) {
-    const process = processDoc.data() as Process;
+    const processData = processDoc.data();
+    
+    // Firestore Timestamp를 Date로 변환
+    const process: Process = {
+      ...processData,
+      createdAt: processData.createdAt instanceof Date 
+        ? processData.createdAt 
+        : processData.createdAt.toDate(),
+      lastUpdated: processData.lastUpdated instanceof Date 
+        ? processData.lastUpdated 
+        : processData.lastUpdated.toDate()
+    } as Process;
     
     // 프로세스 삭제
     await deleteDoc(doc(db, 'users', userId, 'processes', processDoc.id));
@@ -197,10 +249,19 @@ export const getMemorySpaces = async (): Promise<MemorySpace[]> => {
 
   const memorySpacesSnapshot = await getDocs(collection(db, 'users', userId, 'memorySpaces'));
   
-  return memorySpacesSnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  } as MemorySpace));
+  return memorySpacesSnapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      memory: {
+        ...data.memory,
+        lastUpdated: data.memory.lastUpdated instanceof Date 
+          ? data.memory.lastUpdated 
+          : data.memory.lastUpdated.toDate()
+      }
+    } as MemorySpace;
+  });
 };
 
 // 프로세스 목록 가져오기
@@ -210,8 +271,17 @@ export const getProcesses = async (): Promise<Process[]> => {
 
   const processesSnapshot = await getDocs(collection(db, 'users', userId, 'processes'));
   
-  return processesSnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  } as Process));
+  return processesSnapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      createdAt: data.createdAt instanceof Date 
+        ? data.createdAt 
+        : data.createdAt.toDate(),
+      lastUpdated: data.lastUpdated instanceof Date 
+        ? data.lastUpdated 
+        : data.lastUpdated.toDate()
+    } as Process;
+  });
 }; 
